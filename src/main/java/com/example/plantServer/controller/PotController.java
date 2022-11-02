@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -22,10 +23,17 @@ public class PotController {
     private final S3Uploader s3Uploader;
 
 
+    @PostMapping("/addPot")
+    public Pot addPot(@RequestBody HashMap<String, String> pot) {
+        Pot savePot = new Pot();
+        savePot.setSerialId(pot.get("serialId"));
+        potRepository.save(savePot);
+    }
     @GetMapping("/potMain")
-    public List<Pot> potMain(){
-        List<Pot> pot = potRepository.findAll();
-        return potRepository.findAll();
+    public List<Pot> potMain() {
+        List<Pot> myList = new ArrayList<>();
+        potRepository.findAll().forEach(myList::add);
+        return myList;
     }
 
     @GetMapping("/potSetting")
@@ -53,5 +61,23 @@ public class PotController {
         System.out.println("imageUrl = " + imageUrl);
 
         return pot;
+    }
+
+    @GetMapping("/setPeriod")
+    public Pot setPeriod(@RequestBody HashMap<String, Object> pot) {
+        log.info("pot={}", pot);
+        return potRepository.findBySerialId(pot.get("serialId").toString());
+    }
+
+    @PostMapping("/setPeriod")
+    public Pot setPeriod(@RequestBody WateringPeriodForm wateringPeriodForm) {
+        log.info("pot={}", wateringPeriodForm);
+
+        Pot afterPot = potRepository.findBySerialId(wateringPeriodForm.getSerialId());
+        afterPot.setPeriod(wateringPeriodForm.getPeriod());
+
+        potRepository.updateUserSettingBySerialId(afterPot);
+
+        return afterPot;
     }
 }

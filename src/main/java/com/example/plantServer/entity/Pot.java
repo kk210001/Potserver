@@ -2,6 +2,7 @@ package com.example.plantServer.entity;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.joda.time.DateTime;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -42,5 +43,6 @@ public class Pot {
     @Column(name = "image_url")
     private String imageUrl;
 
-    @Column(name =)
+    @Column(name = "wateringDate")
+    private DateTime wateringDate;
 }
