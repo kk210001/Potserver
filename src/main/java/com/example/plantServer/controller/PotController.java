@@ -28,6 +28,7 @@ public class PotController {
         Pot savePot = new Pot();
         savePot.setSerialId(pot.get("serialId"));
         potRepository.save(savePot);
+        return savePot;
     }
     @GetMapping("/potMain")
     public List<Pot> potMain() {
