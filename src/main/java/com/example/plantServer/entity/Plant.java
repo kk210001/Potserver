@@ -10,25 +10,25 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name = "plants")
+@Table(name="plants")
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class Plant {
 
     @Id
-    @Column(name = "plant_name")
+    @Column(name="plant_name")
     private String name;
 
-    @Column(name = "water_period")
+    @Column(name="water_period")
     private String period;
 
-    @Column(name = "refer_humidity")
+    @Column(name="refer_humidity")
     private String humidity;
 
-    @Column(name = "refer_temper")
+    @Column(name="refer_temper")
     private String temper;
 
-    @Column(name = "refer_sunlight")
+    @Column(name="refer_sunlight")
     private String sunlight;
 
 
