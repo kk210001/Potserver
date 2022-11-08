@@ -6,9 +6,12 @@ import com.example.plantServer.respository.PotRepository;
 import com.example.plantServer.s3.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,6 +30,8 @@ public class PotController {
     public Pot addPot(@RequestBody HashMap<String, String> pot) {
         Pot savePot = new Pot();
         savePot.setSerialId(pot.get("serialId"));
+        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+savePot.setWateringDate(timestamp);
         potRepository.save(savePot);
         return savePot;
     }
@@ -41,25 +46,24 @@ public class PotController {
     public Pot potSetting(@RequestBody HashMap<String, Object> pot) {
 
         log.info("pot={}", pot);
+        System.out.println(pot.get("serialId").toString());
         return potRepository.findBySerialId(pot.get("serialId").toString());
     }
 
     @PostMapping("/potSetting")
     public Pot potSetting(@ModelAttribute UserPotSettingForm userPotSettingForm) throws IOException {
-
         log.info("pot={}", userPotSettingForm);
 
-        String imageUrl = s3Uploader.upload(userPotSettingForm.getImageFile());
-
-        Pot pot = potRepository.findBySerialId(userPotSettingForm.getSerialId());
-        pot.setImageUrl(imageUrl);
+        Pot pot = new Pot();
         pot.setPotName(userPotSettingForm.getPotName());
         pot.setPlantName(userPotSettingForm.getPlantName());
         pot.setSerialId(userPotSettingForm.getSerialId());
 
-        potRepository.updateUserSettingBySerialId(pot);
+        String imageUrl = s3Uploader.upload(userPotSettingForm.getImageFile());
+        pot.setImageUrl(imageUrl);
+        log.info("pot={}", pot);
 
-        System.out.println("imageUrl = " + imageUrl);
+        potRepository.updateUserSettingBySerialId(pot);
 
         return pot;
     }
@@ -77,7 +81,7 @@ public class PotController {
         Pot afterPot = potRepository.findBySerialId(wateringPeriodForm.getSerialId());
         afterPot.setPeriod(wateringPeriodForm.getPeriod());
 
-        potRepository.updateUserSettingBySerialId(afterPot);
+        potRepository.updatePeriodBySerialId(afterPot);
 
         return afterPot;
     }

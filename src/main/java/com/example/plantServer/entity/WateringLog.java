@@ -14,8 +14,8 @@ public class WateringLog {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private int id;
 
-    @Column(name ="watering_date")
-    private Date date;
+    //@Column(name ="watering_date")
+    //private Date date;
 
 
 }

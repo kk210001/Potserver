@@ -5,6 +5,7 @@ import com.example.plantServer.entity.Pot;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 public interface PotRepository extends CrudRepository<Pot, String> {
@@ -15,6 +16,11 @@ public interface PotRepository extends CrudRepository<Pot, String> {
 
     @Modifying // select 문이 아님을 나타낸다
     @Transactional
-    @Query(value = "UPDATE pot p set p.pot_name = :#{#afterPot.potName}, p.plant_name= :#{#afterPot.plantName}, p.image_url = :#{#afterPot.imageUrl} where p.serial_id = :#{#afterPot.serialId}", nativeQuery = true)
-    int updateUserSettingBySerialId(Pot afterPot);
+    @Query(value = "UPDATE pot q set q.pot_name = :#{#after.potName}, q.plant_name= :#{#after.plantName}, q.image_url = :#{#after.imageUrl} where q.serial_id = :#{#after.serialId}", nativeQuery = true)
+    int updateUserSettingBySerialId(@Param("after") Pot afterPot);
+
+    @Modifying
+    @Transactional
+    @Query(value="UPDATE pot q set q.water_Period = :#{#after.period} where q.serial_id = :#{#after.serialId}", nativeQuery = true)
+    int updatePeriodBySerialId(@Param("after") Pot afterPot);
 }

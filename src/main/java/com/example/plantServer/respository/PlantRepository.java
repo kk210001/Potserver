@@ -4,7 +4,9 @@ import com.example.plantServer.entity.Plant;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
 public interface PlantRepository extends CrudRepository<Plant, String> {
 
@@ -14,7 +16,7 @@ public interface PlantRepository extends CrudRepository<Plant, String> {
 
     @Modifying // select 문이 아님을 나타낸다
     @Transactional
-    @Query(value = "UPDATE plants p set p.refer_humidity = :#{#afterPlant.humidity}, p.water_period = :#{#afterPlant.period}, p.refer_temper= :#{#afterPlant.temper}, p.refer_sunlight = :#{#afterPlant.sunlight} where p.plant_name = :name", nativeQuery = true)
-    int updateName(String name, Plant afterPlant);
+    @Query(value = "UPDATE plants set refer_humidity = :#{#plant.humidity}, water_period = :#{#plant.period}, refer_temper= :#{#plant.temper}, refer_sunlight = :#{#plant.sunlight} where plant_name = :#{#plant.name}", nativeQuery = true)
+    int updateName(@Param("plant") Plant afterPlant);
 
 }

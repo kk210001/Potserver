@@ -56,14 +56,16 @@ public class PlantController {
         if(plant.toString().contains("null")){
             return null;
         }
-        plantRepository.updateName(plant.getName(),plant);
+        plantRepository.updateName(plant);
         Plant byName = plantRepository.findByName(plant.getName());
         return byName;
     }
 
+
     @PostMapping("/deletePlant")
     public String delPlant(@RequestBody Plant plant) {
         log.info("plant={}", plant);
+        System.out.println(plant.getName());
         plantRepository.deleteByName(plant.getName());
         return "삭제 완료";
     }
