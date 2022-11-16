@@ -20,8 +20,10 @@ public class PlantController {
     private final PlantRepository plantRepository;
 
     @GetMapping("/")
-    public String getMainpage() {
-        System.out.println("hi");
+    public String getMainPage() {
+        System.out.println("arduino = " + plantRepository);
+        log.info("Arduino Access {}");
+        System.out.println(System.getenv("USERNAME"));
         return "good";
     }
 

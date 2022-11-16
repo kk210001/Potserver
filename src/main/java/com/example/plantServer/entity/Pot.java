@@ -2,16 +2,14 @@ package com.example.plantServer.entity;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.joda.time.DateTime;
-import org.springframework.format.annotation.DateTimeFormat;
 
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import java.sql.Date;
-import java.sql.Timestamp;
+import javax.persistence.*;
+import java.security.Timestamp;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
 
 @Entity
 @Data
@@ -47,6 +45,8 @@ public class Pot {
     @Column(name="image_url")
     private String imageUrl;
 
-    @Column(name="watering_Date")
-    private Timestamp wateringDate;
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name="serial_id")
+    private List<WateringLog> wateringDates = new ArrayList<>();
+
 }

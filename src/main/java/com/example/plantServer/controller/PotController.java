@@ -2,15 +2,16 @@ package com.example.plantServer.controller;
 
 
 import com.example.plantServer.entity.Pot;
+import com.example.plantServer.entity.WateringLog;
 import com.example.plantServer.respository.PotRepository;
+import com.example.plantServer.respository.WateringLogRepository;
 import com.example.plantServer.s3.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.repository.query.Param;
+import net.bytebuddy.asm.Advice;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,6 +24,7 @@ import java.util.List;
 public class PotController {
 
     private final PotRepository potRepository;
+    private final WateringLogRepository wateringLogRepository;
     private final S3Uploader s3Uploader;
 
 
@@ -30,8 +32,8 @@ public class PotController {
     public Pot addPot(@RequestBody HashMap<String, String> pot) {
         Pot savePot = new Pot();
         savePot.setSerialId(pot.get("serialId"));
-        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-savePot.setWateringDate(timestamp);
+//        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
+//savePot.setWateringDate(timestamp);
         potRepository.save(savePot);
         return savePot;
     }
@@ -84,5 +86,26 @@ savePot.setWateringDate(timestamp);
         potRepository.updatePeriodBySerialId(afterPot);
 
         return afterPot;
+    }
+
+    @GetMapping("/getSensorData")
+    public String updateSensorData(@RequestBody ArduinoData arduinoData){
+        log.info("pot={}", arduinoData);
+
+        Pot pot = new Pot();
+        pot.setSerialId(arduinoData.getSerialId());
+        pot.setWaterLevel(arduinoData.getWaterLevel());
+        pot.setTemper(arduinoData.getHumidity());
+        pot.setHumidity(arduinoData.getHumidity());
+        pot.setSoil_humidity(arduinoData.getSoil_humidity());
+
+        potRepository.UpdateSensorData(pot);
+
+        String status = arduinoData.getStatus();
+        if (status.equals("watering")) {
+            WateringLog wateringLog = new WateringLog(potRepository.findBySerialId(pot.getSerialId()), LocalDateTime.now());
+            wateringLogRepository.save(wateringLog);
+        }
+        return "g";
     }
 }

@@ -3,6 +3,7 @@ package com.example.plantServer.entity;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -11,11 +12,18 @@ import java.util.Date;
 public class WateringLog {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private int id;
+    @Column(name = "serial_id")
+    //    private String serialId;
 
-    //@Column(name ="watering_date")
-    //private Date date;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "serial_id")
+    private Pot pot;
 
+    @Column(name="watering_Date")
+    private LocalDateTime wateringDate;
 
+    public WateringLog(Pot pot, LocalDateTime wateringDate) {
+        this.pot = pot;
+        this.wateringDate = wateringDate;
+    }
 }

@@ -23,4 +23,10 @@ public interface PotRepository extends CrudRepository<Pot, String> {
     @Transactional
     @Query(value="UPDATE pot q set q.water_Period = :#{#after.period} where q.serial_id = :#{#after.serialId}", nativeQuery = true)
     int updatePeriodBySerialId(@Param("after") Pot afterPot);
+
+    @Modifying
+    @Transactional
+    @Query(value = "UPDATE pot q set q.humidity = :#{#sensor.humidity}, q.soil_humidity= :#{#sensor.Soil_humidity}, q.temper = :#{#sensor.temper}, q.water_level=:#{#sensor.waterLevel} where q.serial_id = :#{#sensor.serialId}", nativeQuery = true)
+    int UpdateSensorData(@Param("sensor") Pot arduinoData);
+
 }
