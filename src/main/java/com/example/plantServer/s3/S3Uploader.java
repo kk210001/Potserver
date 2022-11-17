@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -38,7 +39,7 @@ public class S3Uploader {
     }
 
     private String upload(File uploadFile) {
-        String fileName = uploadFile.getName();
+        String fileName = LocalDateTime.now() + uploadFile.getName();
         String uploadImageUrl = putS3(uploadFile, fileName);
 
         removeNewFile(uploadFile);  // 로컬에 생성된 File 삭제 (MultipartFile -> File 전환 하며 로컬에 파일 생성됨)
