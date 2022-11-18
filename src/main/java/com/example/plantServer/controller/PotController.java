@@ -88,6 +88,16 @@ public class PotController {
         return afterPot;
     }
 
+    @GetMapping("/log")
+    public List<WateringLog> setPeriod1(@RequestBody HashMap<String, Object> bb) {
+        log.info("pot={}", bb);
+        List<WateringLog> serialId = wateringLogRepository.findAllBySerialId(bb.get("serialId").toString());
+        for (WateringLog wateringLog : serialId) {
+            log.info("logList={}", wateringLog);
+        }
+        return serialId;
+    }
+
     @GetMapping("/getSensorData")
     public String updateSensorData(@RequestBody ArduinoData arduinoData){
         log.info("pot={}", arduinoData);
