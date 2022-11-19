@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -28,14 +29,32 @@ public class PotController {
     private final S3Uploader s3Uploader;
 
 
+    @GetMapping("/serialId")
+    public String addSerialId(@RequestBody HashMap<String, String> pot) {
+        if (pot.get("serialId").isEmpty()) {
+
+            String serialNumber = UUID.randomUUID().toString();
+
+            Pot addPot = new Pot();
+            addPot.setSerialId(serialNumber);
+            potRepository.save(addPot);
+            return serialNumber;
+
+        }
+        return pot.get("serialId");
+    }
     @PostMapping("/addPot")
     public Pot addPot(@RequestBody HashMap<String, String> pot) {
-        Pot savePot = new Pot();
-        savePot.setSerialId(pot.get("serialId"));
-//        Timestamp timestamp = new Timestamp(System.currentTimeMillis());
-//savePot.setWateringDate(timestamp);
-        potRepository.save(savePot);
-        return savePot;
+
+        List<Pot> myList = new ArrayList<>();
+        potRepository.findAll().forEach(myList::add);
+
+        for (Pot tempPot : myList) {
+            if (tempPot.getSerialId().equals(pot.get("serialId"))) {
+                return tempPot;
+            }
+        }
+        return null;
     }
     @GetMapping("/potMain")
     public List<Pot> potMain() {

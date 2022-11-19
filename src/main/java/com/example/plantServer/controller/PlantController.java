@@ -30,12 +30,12 @@ public class PlantController {
 
     @GetMapping("/findAll")
     public Iterable<Plant> findAll() {
-        System.out.println(UUID.randomUUID().toString());
+
 
         return plantRepository.findAll();
     }
 
-    @PostMapping("/findName")
+    @GetMapping("/findName")
     public Plant findName(@RequestBody HashMap<String, String> plant) {
         log.info("plant={}", plant);
         return plantRepository.findByName(plant.get("name"));
@@ -65,11 +65,10 @@ public class PlantController {
 
 
     @PostMapping("/deletePlant")
-    public String delPlant(@RequestBody Plant plant) {
+    public String delPlant(@RequestBody HashMap<String, String> plant) {
         log.info("plant={}", plant);
-        System.out.println(plant.getName());
-        plantRepository.deleteByName(plant.getName());
-        return "삭제 완료";
+        plantRepository.deleteByName(plant.get("name"));
+        return plant.get("name") + " 삭제 완료";
     }
 
 

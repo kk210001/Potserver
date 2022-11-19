@@ -12,6 +12,7 @@ public interface PlantRepository extends CrudRepository<Plant, String> {
 
     Plant findByName(String name);
 
+    @Transactional
     void deleteByName(String name);
 
     @Modifying // select 문이 아님을 나타낸다
