@@ -1,5 +1,6 @@
 package com.example.plantServer.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,7 +17,7 @@ import java.util.List;
 @Data
 @Table(name="pot")
 @NoArgsConstructor
-@JsonIgnoreProperties("WateringLog")
+@JsonIgnoreProperties("id")
 public class Pot {
 
     @Id
@@ -47,8 +48,9 @@ public class Pot {
     @Column(name="image_url")
     private String imageUrl;
 
-    @OneToMany( fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @OneToMany( fetch = FetchType.EAGER)
     @JoinColumn(name="serial_id")
     private List<WateringLog> wateringDates = new ArrayList<>();
+
 
 }

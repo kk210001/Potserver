@@ -1,6 +1,9 @@
 package com.example.plantServer.s3;
 
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.AmazonS3ClientBuilder;
 import com.amazonaws.services.s3.model.*;
 import com.amazonaws.util.IOUtils;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +19,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,16 +34,28 @@ public class S3Uploader {
 
     @Value("${cloud.aws.s3.bucket}")
     private String bucket;
-
+    @Value("${aws.s3.dir}")
+    private String dir;
     // MultipartFile을 전달받아 File로 전환한 후 S3에 업로드
     public String upload(MultipartFile multipartFile) throws IOException {
         File uploadFile = convert(multipartFile)
                 .orElseThrow(() -> new IllegalArgumentException("MultipartFile -> File 전환 실패"));
+
+        ListObjectsV2Result result = amazonS3Client.listObjectsV2(bucket);
+        List<S3ObjectSummary> objects = result.getObjectSummaries();
+        for (S3ObjectSummary os : objects) {
+            if (os.getKey().split("\\+")[1].equals(uploadFile.getName())) {
+                removeNewFile(uploadFile);
+                return amazonS3Client.getUrl(bucket, os.getKey()).toString();
+            }
+        }
+
         return upload(uploadFile);
     }
 
     private String upload(File uploadFile) {
-        String fileName = uploadFile.getName();
+
+        String fileName = LocalDateTime.now() + "+"+ uploadFile.getName();
         String uploadImageUrl = putS3(uploadFile, fileName);
 
         removeNewFile(uploadFile);  // 로컬에 생성된 File 삭제 (MultipartFile -> File 전환 하며 로컬에 파일 생성됨)

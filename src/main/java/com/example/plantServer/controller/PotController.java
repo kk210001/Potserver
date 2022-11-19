@@ -62,8 +62,9 @@ public class PotController {
         pot.setSerialId(userPotSettingForm.getSerialId());
 
         String imageUrl = s3Uploader.upload(userPotSettingForm.getImageFile());
+
         pot.setImageUrl(imageUrl);
-        log.info("pot={}", pot);
+        log.info("afterPot={}", pot);
 
         potRepository.updateUserSettingBySerialId(pot);
 
@@ -113,7 +114,7 @@ public class PotController {
 
         String status = arduinoData.getStatus();
         if (status.equals("watering")) {
-            WateringLog wateringLog = new WateringLog(potRepository.findBySerialId(pot.getSerialId()), LocalDateTime.now());
+            WateringLog wateringLog = new WateringLog(pot.getSerialId(), LocalDateTime.now());
             wateringLogRepository.save(wateringLog);
         }
         return "g";
