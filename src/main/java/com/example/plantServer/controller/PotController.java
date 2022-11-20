@@ -8,15 +8,11 @@ import com.example.plantServer.respository.WateringLogRepository;
 import com.example.plantServer.s3.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import net.bytebuddy.asm.Advice;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -24,6 +20,9 @@ import java.util.UUID;
 @RequestMapping("/pot")
 public class PotController {
 
+    public static final Integer Watering_Request = 21;
+    public static final Integer Server_Response = 20;
+    public static final int Watering_Check = 11;
     private final PotRepository potRepository;
     private final WateringLogRepository wateringLogRepository;
     private final S3Uploader s3Uploader;
@@ -118,9 +117,11 @@ public class PotController {
         return serialId;
     }
 
-    @GetMapping("/getSensorData")
-    public String updateSensorData(@RequestBody ArduinoData arduinoData){
+    @GetMapping("/sensor-data")
+    public Map<String, Object> updateSensorData(@RequestBody ArduinoData arduinoData){
         log.info("pot={}", arduinoData);
+
+
 
         Pot pot = new Pot();
         pot.setSerialId(arduinoData.getSerialId());
@@ -131,11 +132,30 @@ public class PotController {
 
         potRepository.UpdateSensorData(pot);
 
-        String status = arduinoData.getStatus();
-        if (status.equals("watering")) {
+        if (arduinoData.getStatus() == Watering_Check) {
             WateringLog wateringLog = new WateringLog(pot.getSerialId(), LocalDateTime.now());
             wateringLogRepository.save(wateringLog);
+            log.info("Watering check");
         }
-        return "g";
+
+        Map<String, Object> serverState = new HashMap<>();
+        serverState.put("serialId", pot.getSerialId());
+
+        Pot checkPot = potRepository.findBySerialId(pot.getSerialId());
+        Integer period = checkPot.getPeriod();
+        if (period != null){
+
+            LocalDateTime lastDate = checkPot.getWateringDates().get(checkPot.getWateringDates().size() - 1).getWateringDate();
+            LocalDateTime now = LocalDateTime.now();
+
+            if (lastDate.plusSeconds(checkPot.getPeriod()/1000).equals(now)){
+                serverState.put("serverRequest", Watering_Request);
+            }else {
+                serverState.put("serverRequest", Server_Response);
+            }
+        }
+        serverState.put("serverRequest", Integer.valueOf(20));
+
+        return serverState;
     }
 }
