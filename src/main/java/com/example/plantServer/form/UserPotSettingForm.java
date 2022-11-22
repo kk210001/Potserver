@@ -1,4 +1,4 @@
-package com.example.plantServer.controller;
+package com.example.plantServer.form;
 
 
 import lombok.Data;
