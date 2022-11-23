@@ -5,7 +5,6 @@ import lombok.Data;
 
 @Data
 public class ArduinoData {
-    private String serialId;
     private Integer status;
     private Integer humidity;
     private Integer waterLevel;

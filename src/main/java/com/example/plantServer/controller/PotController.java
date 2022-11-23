@@ -47,20 +47,21 @@ public class PotController {
     public Map<String, Integer> statusCheck(){
         return statusMap;
     }
-    @GetMapping("/serialId")
-    public String addSerialId(@RequestBody HashMap<String, String> pot) {
-        if (pot.get("serialId").isEmpty()) {
+    @GetMapping("/{serialId}")
+    public String addSerialId(@PathVariable("serialId") String serialId) {
+        if (serialId.equals("empty")) {
             log.info("serialId is Empty");
             String serialNumber = UUID.randomUUID().toString();
 
             Pot addPot = new Pot();
             addPot.setSerialId(serialNumber);
             potRepository.save(addPot);
+            statusMap.put(serialNumber, Server_Response);
             return serialNumber;
 
         }
-        log.info("serialId is exist : {}", pot.get("serialId"));
-        return pot.get("serialId");
+        log.info("serialId is exist : {}", serialId);
+        return serialId;
     }
 
     @PostMapping("/addPot")
@@ -139,12 +140,12 @@ public class PotController {
         return serialId;
     }
 
-    @GetMapping("/sensor-data")
-    public Map<String, Integer> updateSensorData(@RequestBody ArduinoData arduinoData) {
+    @PostMapping("/{id}/sensor-data")
+    public Map<String, Object> updateSensorData(@PathVariable("id")String id, @RequestBody ArduinoData arduinoData) {
         log.info("sensor-data={}", arduinoData);
 
         Pot pot = new Pot();
-        pot.setSerialId(arduinoData.getSerialId());
+        pot.setSerialId(id);
         pot.setWaterLevel(arduinoData.getWaterLevel());
         pot.setTemper(arduinoData.getHumidity());
         pot.setHumidity(arduinoData.getHumidity());
@@ -158,17 +159,19 @@ public class PotController {
             log.info("add Watering Log : {}", LocalDateTime.now());
         }
 
-        if (statusMap.get("serialId").equals(Watering_Request)) {
-            Map<String, Integer> responseMap=new HashMap<>();
-            responseMap.put(pot.getSerialId(), statusMap.get(pot.getSerialId()));
+        if (statusMap.get(id).equals(Watering_Request)) {
+            Map<String, Object> responseMap=new HashMap<>();
+            responseMap.put("serialId", id);
+            responseMap.put("serverStatus", statusMap.get(pot.getSerialId()));
             return responseMap;
         }
 
         Pot checkPot = potRepository.findBySerialId(pot.getSerialId());
+        List<WateringLog> wateringDates = checkPot.getWateringDates();
         Integer period = checkPot.getPeriod();
-        if (period != null) {
+        if (period != null && wateringDates.size()!=0) {
 
-            LocalDateTime lastDate = checkPot.getWateringDates().get(checkPot.getWateringDates().size() - 1).getWateringDate();
+            LocalDateTime lastDate = wateringDates.get(wateringDates.size() - 1).getWateringDate();
             LocalDateTime now = LocalDateTime.now();
 
             if (lastDate.plusSeconds(checkPot.getPeriod() / 1000).equals(now)) {
@@ -180,8 +183,11 @@ public class PotController {
         }
         statusMap.put(checkPot.getSerialId(), Server_Response);
 
-        Map<String, Integer> responseMap=new HashMap<>();
-        responseMap.put(checkPot.getSerialId(), statusMap.get(checkPot.getSerialId()));
+        Map<String, Object> responseMap=new HashMap<>();
+        responseMap.put("serialId", checkPot.getSerialId());
+        responseMap.put("serverStatus", statusMap.get(checkPot.getSerialId()));
+
+        log.info("response json ={}",responseMap);
         return responseMap;
     }
 
