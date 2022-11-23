@@ -55,8 +55,11 @@ public class PotController {
 
             Pot addPot = new Pot();
             addPot.setSerialId(serialNumber);
+
             potRepository.save(addPot);
+
             statusMap.put(serialNumber, Server_Response);
+
             return serialNumber;
 
         }
@@ -154,9 +157,9 @@ public class PotController {
         potRepository.UpdateSensorData(pot);
 
         if (arduinoData.getStatus() == Watering_Check) {
-            WateringLog wateringLog = new WateringLog(pot.getSerialId(), LocalDateTime.now());
+            WateringLog wateringLog = new WateringLog(pot.getSerialId(), LocalDateTime.now().minusSeconds(1));
             wateringLogRepository.save(wateringLog);
-            log.info("add Watering Log : {}", LocalDateTime.now());
+            log.info("add Watering Log : {}", LocalDateTime.now().minusSeconds(1));
         }
 
         if (statusMap.get(id).equals(Watering_Request)) {
