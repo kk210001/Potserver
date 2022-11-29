@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<h1>화분 목록</h1>
+<table border="1">
+    <tr>
+        <th>serialId</th>
+        <th>humidity</th>
+        <th>soil_humidity</th>
+        <th>temper</th>
+        <th>waterLevel</th>
+        <th>potName</th>
+        <th>plantName</th>
+        <th>imageUrl</th>
+        <th>period</th>
+        <th>삭제</th>
+    </tr>
+    <tr th:each="pot : ${pots}">
+        <td th:text="${pot.serialId}">1</td>
+        <td th:text="${pot.humidity}">username</td>
+        <td th:text="${pot.soil_humidity}">username</td>
+        <td th:text="${pot.temper}">username</td>
+        <td th:text="${pot.waterLevel}">username</td>
+        <td th:text="${pot.potName}">username</td>
+        <td th:text="${pot.plantName}">username</td>
+        <td th:text="${pot.imageUrl}">username</td>
+        <td th:text="${pot.period}">username</td>
+        <td th:onclick="|location.href='@{/delete/{serialId}(serialId=${pot.serialId})}'|" type="submit">삭제</td>
+
+    </tr>
+
+</table>
+<a th:href="@{add}">546</a>
+</body>
+</html>
