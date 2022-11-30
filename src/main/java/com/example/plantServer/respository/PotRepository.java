@@ -12,6 +12,7 @@ public interface PotRepository extends CrudRepository<Pot, String> {
 
     Pot findBySerialId(String name);
 
+    @Transactional
     void deleteBySerialId(String name);
 
     @Modifying // select 문이 아님을 나타낸다

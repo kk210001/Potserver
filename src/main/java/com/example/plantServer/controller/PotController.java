@@ -11,6 +11,7 @@ import com.example.plantServer.respository.WateringLogRepository;
 import com.example.plantServer.s3.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.PostConstruct;
@@ -34,8 +35,10 @@ public class PotController {
     private final S3Uploader s3Uploader;
     public static Map<String, Integer> statusMap = new ConcurrentHashMap<>();
 
+    @GetMapping("/init")
     @PostConstruct
-    public void arduinoStatusSetting(){
+    public void arduinoStatusSetting() {
+        statusMap = new ConcurrentHashMap<>();
         List<Pot> myList = new ArrayList<>();
         potRepository.findAll().forEach(myList::add);
         for (Pot pot : myList) {
@@ -44,9 +47,22 @@ public class PotController {
     }
 
     @GetMapping("/status")
-    public Map<String, Integer> statusCheck(){
+    public Map<String, Integer> statusCheck() {
         return statusMap;
     }
+
+    @DeleteMapping("/{serialId}")
+    public String deleteSerialId(@PathVariable("serialId") String serialId) {
+        if (serialId.equals("empty")) {
+            log.info("serialId is Empty");
+            return "not available";
+        }
+        potRepository.deleteBySerialId(serialId);
+        statusMap.remove(serialId);
+        log.info("serialId deleted = {}", serialId);
+        return serialId + " is deleted";
+    }
+
     @GetMapping("/{serialId}")
     public String addSerialId(@PathVariable("serialId") String serialId) {
         if (serialId.equals("empty")) {
@@ -144,7 +160,7 @@ public class PotController {
     }
 
     @PostMapping("/{id}/sensor-data")
-    public Map<String, Object> updateSensorData(@PathVariable("id")String id, @RequestBody ArduinoData arduinoData) {
+    public Map<String, Object> updateSensorData(@PathVariable("id") String id, @RequestBody ArduinoData arduinoData) {
         log.info("sensor-data={}", arduinoData);
 
         Pot pot = new Pot();
@@ -163,7 +179,7 @@ public class PotController {
         }
 
         if (statusMap.get(id).equals(Watering_Request)) {
-            Map<String, Object> responseMap=new HashMap<>();
+            Map<String, Object> responseMap = new HashMap<>();
             responseMap.put("serialId", id);
             responseMap.put("serverStatus", statusMap.get(pot.getSerialId()));
             return responseMap;
@@ -172,7 +188,7 @@ public class PotController {
         Pot checkPot = potRepository.findBySerialId(pot.getSerialId());
         List<WateringLog> wateringDates = checkPot.getWateringDates();
         Integer period = checkPot.getPeriod();
-        if (period != null && wateringDates.size()!=0) {
+        if (period != null && wateringDates.size() != 0) {
 
             LocalDateTime lastDate = wateringDates.get(wateringDates.size() - 1).getWateringDate();
             LocalDateTime now = LocalDateTime.now();
@@ -186,18 +202,20 @@ public class PotController {
         }
         statusMap.put(checkPot.getSerialId(), Server_Response);
 
-        Map<String, Object> responseMap=new HashMap<>();
+        Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("serialId", checkPot.getSerialId());
         responseMap.put("serverStatus", statusMap.get(checkPot.getSerialId()));
 
-        log.info("response json ={}",responseMap);
+        log.info("response json ={}", responseMap);
         return responseMap;
     }
 
     @PostMapping("/watering")
-    public String updateSensorData(@RequestBody HashMap<String, String> potId){
+    public String updateSensorData(@RequestBody HashMap<String, String> potId) {
         String serialID = potId.get("serialId");
         statusMap.put(serialID, Watering_Request);
         return "요청 완료";
     }
+
+
 }
