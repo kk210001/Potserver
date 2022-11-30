@@ -40,6 +40,7 @@ public class S3Uploader {
         File uploadFile = convert(multipartFile)
                 .orElseThrow(() -> new IllegalArgumentException("MultipartFile -> File 전환 실패"));
 
+        // 중복이미지 업로드 필요
 //        ListObjectsV2Result result = amazonS3Client.listObjectsV2(bucket);
 //        List<S3ObjectSummary> objects = result.getObjectSummaries();
 //        for (S3ObjectSummary os : objects) {
