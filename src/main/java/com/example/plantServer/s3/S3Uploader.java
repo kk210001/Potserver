@@ -40,14 +40,14 @@ public class S3Uploader {
         File uploadFile = convert(multipartFile)
                 .orElseThrow(() -> new IllegalArgumentException("MultipartFile -> File 전환 실패"));
 
-        ListObjectsV2Result result = amazonS3Client.listObjectsV2(bucket);
-        List<S3ObjectSummary> objects = result.getObjectSummaries();
-        for (S3ObjectSummary os : objects) {
-            if (os.getKey().split("\\+")[1].equals(uploadFile.getName())) {
-                removeNewFile(uploadFile);
-                return amazonS3Client.getUrl(bucket, os.getKey()).toString();
-            }
-        }
+//        ListObjectsV2Result result = amazonS3Client.listObjectsV2(bucket);
+//        List<S3ObjectSummary> objects = result.getObjectSummaries();
+//        for (S3ObjectSummary os : objects) {
+//            if (os.getKey().split("\\+")[1].equals(uploadFile.getName())) {
+//                removeNewFile(uploadFile);
+//                return amazonS3Client.getUrl(bucket, os.getKey()).toString();
+//            }
+//        }
 
         return upload(uploadFile);
     }
