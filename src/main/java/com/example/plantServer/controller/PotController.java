@@ -11,6 +11,7 @@ import com.example.plantServer.respository.WateringLogRepository;
 import com.example.plantServer.s3.S3Uploader;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.relational.core.sql.In;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
@@ -158,56 +159,82 @@ public class PotController {
         }
         return serialId;
     }
-
+    @PutMapping("/modify")
+    public String setPeriodByArduino(@PathVariable("id") String id, HashMap<String, String> term) {
+        log.info("id={}", id);
+        Pot result = potRepository.findBySerialId(id);
+        result.setPeriod(Integer.valueOf(term.get("water_term")));
+        potRepository.updatePeriodBySerialId(result);
+        return "200 OK";
+    }
     @PostMapping("/{id}/sensor-data")
     public Map<String, Object> updateSensorData(@PathVariable("id") String id, @RequestBody ArduinoData arduinoData) {
         log.info("sensor-data={}", arduinoData);
 
+        Pot pot = getArduinoData(id, arduinoData);
+        potRepository.UpdateSensorData(pot);
+        Map<String, Object> responseMap = new HashMap<>();
+        responseMap.put("serialId", id);
+        responseMap.put("serverStatus", "200 OK");
+
+        log.info("response json ={}", responseMap);
+        return responseMap;
+    }
+//    @PostMapping("/{id}/sensor-data")
+//    public Map<String, Object> updateSensorData1(@PathVariable("id") String id, @RequestBody ArduinoData arduinoData) {
+//        log.info("sensor-data={}", arduinoData);
+//
+//        Pot pot = getArduinoData(id, arduinoData);
+//
+//        potRepository.UpdateSensorData(pot);
+//
+//        if (arduinoData.getStatus() == Watering_Check) {
+//            WateringLog wateringLog = new WateringLog(pot.getSerialId(), LocalDateTime.now().minusSeconds(1));
+//            wateringLogRepository.save(wateringLog);
+//            log.info("add Watering Log : {}", LocalDateTime.now().minusSeconds(1));
+//        }
+//
+//        if (statusMap.get(id).equals(Watering_Request)) {
+//            Map<String, Object> responseMap = new HashMap<>();
+//            responseMap.put("serialId", id);
+//            responseMap.put("serverStatus", statusMap.get(pot.getSerialId()));
+//            return responseMap;
+//        }
+//
+//        Pot checkPot = potRepository.findBySerialId(pot.getSerialId());
+//        List<WateringLog> wateringDates = checkPot.getWateringDates();
+//        Integer period = checkPot.getPeriod();
+//
+//        if (period != null && wateringDates.size() != 0) {
+//
+//            LocalDateTime lastDate = wateringDates.get(wateringDates.size() - 1).getWateringDate();
+//            LocalDateTime now = LocalDateTime.now();
+//
+//            if (lastDate.plusSeconds(checkPot.getPeriod() / 1000).equals(now)) {
+//                statusMap.put(checkPot.getSerialId(), Watering_Request);
+//                log.info("WateringLog={}", LocalDateTime.now());
+//            } else {
+//                statusMap.put(checkPot.getSerialId(), Server_Response);
+//            }
+//        }
+//        statusMap.put(checkPot.getSerialId(), Server_Response);
+//
+//        Map<String, Object> responseMap = new HashMap<>();
+//        responseMap.put("serialId", checkPot.getSerialId());
+//        responseMap.put("serverStatus", statusMap.get(checkPot.getSerialId()));
+//
+//        log.info("response json ={}", responseMap);
+//        return responseMap;
+//    }
+
+    private Pot getArduinoData(String id, ArduinoData arduinoData) {
         Pot pot = new Pot();
         pot.setSerialId(id);
         pot.setWaterLevel(arduinoData.getWaterLevel());
         pot.setTemper(arduinoData.getHumidity());
         pot.setHumidity(arduinoData.getHumidity());
         pot.setSoil_humidity(arduinoData.getSoil_humidity());
-
-        potRepository.UpdateSensorData(pot);
-
-        if (arduinoData.getStatus() == Watering_Check) {
-            WateringLog wateringLog = new WateringLog(pot.getSerialId(), LocalDateTime.now().minusSeconds(1));
-            wateringLogRepository.save(wateringLog);
-            log.info("add Watering Log : {}", LocalDateTime.now().minusSeconds(1));
-        }
-
-        if (statusMap.get(id).equals(Watering_Request)) {
-            Map<String, Object> responseMap = new HashMap<>();
-            responseMap.put("serialId", id);
-            responseMap.put("serverStatus", statusMap.get(pot.getSerialId()));
-            return responseMap;
-        }
-
-        Pot checkPot = potRepository.findBySerialId(pot.getSerialId());
-        List<WateringLog> wateringDates = checkPot.getWateringDates();
-        Integer period = checkPot.getPeriod();
-        if (period != null && wateringDates.size() != 0) {
-
-            LocalDateTime lastDate = wateringDates.get(wateringDates.size() - 1).getWateringDate();
-            LocalDateTime now = LocalDateTime.now();
-
-            if (lastDate.plusSeconds(checkPot.getPeriod() / 1000).equals(now)) {
-                statusMap.put(checkPot.getSerialId(), Watering_Request);
-                log.info("WateringLog={}", LocalDateTime.now());
-            } else {
-                statusMap.put(checkPot.getSerialId(), Server_Response);
-            }
-        }
-        statusMap.put(checkPot.getSerialId(), Server_Response);
-
-        Map<String, Object> responseMap = new HashMap<>();
-        responseMap.put("serialId", checkPot.getSerialId());
-        responseMap.put("serverStatus", statusMap.get(checkPot.getSerialId()));
-
-        log.info("response json ={}", responseMap);
-        return responseMap;
+        return pot;
     }
 
     @PostMapping("/watering")
