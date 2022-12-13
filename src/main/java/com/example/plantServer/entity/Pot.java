@@ -25,15 +25,13 @@ public class Pot {
     private String serialId;
 
     @Column(name="humidity")
-    private Float humidity;
-//    private Integer humidity;
+    private Integer humidity;
 
     @Column(name="soil_humidity")
     private Integer soil_humidity;
 
     @Column(name="temper")
-    private Float temper;
-//    private Integer temper;
+    private Integer temper;
 
     @Column(name="water_level")
     private Integer waterLevel;

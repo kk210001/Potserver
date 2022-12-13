@@ -156,14 +156,14 @@ public class PotController {
         return result;
     }
     @PutMapping("/{id}/modify")
-    public String setPeriodByArduino(@PathVariable("id") String id, HashMap<String, String> term) {
-        log.info("id={}", id);
+    public String setPeriodByArduino(@PathVariable("id") String id, @RequestBody HashMap<String, Object> term) {
+        log.info("term={}", term);
         Pot result = potRepository.findBySerialId(id);
-        result.setPeriod(Integer.valueOf(term.get("water_term")));
+        result.setPeriod((Integer)term.get("water_term"));
         potRepository.updatePeriodBySerialId(result);
         return "200 OK";
     }
-    @PostMapping("/{id}/sensor-data")
+    @PostMapping("/{id}/sensor_data")
     public Map<String, Object> updateSensorData(@PathVariable("id") String id, @RequestBody ArduinoData arduinoData) {
         log.info("sensor-data={}", arduinoData);
 
@@ -227,8 +227,8 @@ public class PotController {
         Pot pot = new Pot();
         pot.setSerialId(id);
         pot.setWaterLevel(arduinoData.getWaterLevel());
-        pot.setTemper(arduinoData.getHumidity());
-        pot.setHumidity(arduinoData.getHumidity());
+        pot.setTemper(Math.round(arduinoData.getTemper()));
+        pot.setHumidity(Math.round(arduinoData.getHumidity()));
         pot.setSoil_humidity(arduinoData.getSoil_humidity());
         return pot;
     }

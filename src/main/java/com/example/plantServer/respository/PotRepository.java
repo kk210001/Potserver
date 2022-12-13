@@ -22,7 +22,7 @@ public interface PotRepository extends CrudRepository<Pot, String> {
 
     @Modifying
     @Transactional
-    @Query(value="UPDATE pot q set q.water_Period = :#{#after.period} where q.serial_id = :#{#after.serialId}", nativeQuery = true)
+    @Query(value="UPDATE pot q set q.water_period = :#{#after.period} where q.serial_id = :#{#after.serialId}", nativeQuery = true)
     int updatePeriodBySerialId(@Param("after") Pot afterPot);
 
     @Modifying
