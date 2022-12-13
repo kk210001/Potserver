@@ -149,17 +149,7 @@ public class PotController {
 
         return afterPot;
     }
-
-    @GetMapping("/log")
-    public List<WateringLog> setPeriod1(@RequestBody HashMap<String, Object> bb) {
-        log.info("pot={}", bb);
-        List<WateringLog> serialId = wateringLogRepository.findAllBySerialId(bb.get("serialId").toString());
-        for (WateringLog wateringLog : serialId) {
-            log.info("logList={}", wateringLog);
-        }
-        return serialId;
-    }
-    @PutMapping("/modify")
+    @PutMapping("{id}/modify")
     public String setPeriodByArduino(@PathVariable("id") String id, HashMap<String, String> term) {
         log.info("id={}", id);
         Pot result = potRepository.findBySerialId(id);
