@@ -149,7 +149,13 @@ public class PotController {
 
         return afterPot;
     }
-    @PutMapping("{id}/modify")
+    @GetMapping("/{id}/info")
+    public Pot getPotInfo(@PathVariable("id") String id) {
+        log.info("id={}", id);
+        Pot result = potRepository.findBySerialId(id);
+        return result;
+    }
+    @PutMapping("/{id}/modify")
     public String setPeriodByArduino(@PathVariable("id") String id, HashMap<String, String> term) {
         log.info("id={}", id);
         Pot result = potRepository.findBySerialId(id);
