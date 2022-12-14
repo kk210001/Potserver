@@ -5,9 +5,11 @@ import lombok.Data;
 
 @Data
 public class ArduinoData {
-    private Integer status;
-    private Integer humidity;
+//    private Integer status;
+    private Float humidity;
+//    private Integer humidity;
     private Integer waterLevel;
     private Integer soil_humidity;
-    private Integer temper;
+//    private Integer temper;
+    private Float temper;
 }
