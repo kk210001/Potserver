@@ -1,6 +1,7 @@
 package com.example.plantServer.controller;
 
 import com.example.plantServer.entity.Pot;
+import com.example.plantServer.entity.WateringLog;
 import com.example.plantServer.respository.PotRepository;
 import com.example.plantServer.respository.WateringLogRepository;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -48,6 +50,16 @@ public class ManageController {
             potRepository.save(addPot);
 
             return "redirect:/pot/init";
+
+    }
+    @GetMapping("/add_log/{serialId}")
+    public String addWateringLog(@PathVariable("serialId") String serialId) {
+
+        WateringLog wateringLog = new WateringLog(serialId, LocalDateTime.now());
+        log.info("wateringLog = {}", wateringLog);
+        wateringLogRepository.save(wateringLog);
+
+        return "redirect:/condition";
 
     }
 
